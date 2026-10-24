@@ -1,29 +1,39 @@
 import { test, expect } from '@playwright/test';
+import { Homepage } from '../pages/homepage';
+import { Matchespage } from '../pages/matchespage';
 
 test.describe('Riot Games - Valorant Esports Portal Test Suite', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://valorantesports.com/', { waitUntil: 'domcontentloaded' });
+    const homePage = new Homepage(page);
+    await homePage.navigate();
   });
 
   test('Verify page title and main navigation elements', async ({ page }) => {
+    const homePage = new Homepage(page);
+
     await expect(page).toHaveTitle(/VALORANT Esports/i);
-
-    const matchesLink = page.getByRole('link', { name: 'MATCHES' }).first();
-    const partnerTeamsLink = page.getByRole('link', { name: 'PARTNER TEAMS' }).first();
-
-    await expect(matchesLink).toBeVisible();
-    await expect(partnerTeamsLink).toBeVisible();
+    await expect(homePage.matchesLink).toBeVisible();
+    await expect(homePage.partnerTeamsLink).toBeVisible();
   });
 
-  test('Navigate to Matches page and verify content loads', async ({ page }) => {
-    const matchesLink = page.getByRole('link', { name: 'MATCHES' }).first();
-    await matchesLink.click();
+  test('Navigate to Matches page and verify route and content', async ({ page }) => {
+    const homePage = new Homepage(page);
+    const matchesPage = new Matchespage(page);
+
+    await homePage.clickMatches();
 
     await expect(page).toHaveURL(/.*matches/);
+    await expect(matchesPage.mainContent).toBeVisible();
+  });
 
-    const mainContent = page.locator('main');
-    await expect(mainContent).toBeVisible();
+  test('Visual Regression - Compare Home Page Layout Baseline', async ({ page }) => {
+    await page.waitForLoadState('networkidle');
+
+    await expect(page).toHaveScreenshot('home-page-baseline.png', {
+      fullPage: true,
+      maxDiffPixelRatio: 0.05
+    });
   });
 
 });
