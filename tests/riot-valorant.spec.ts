@@ -3,24 +3,24 @@ import { test, expect } from '@playwright/test';
 test.describe('Riot Games - Valorant Esports Portal Test Suite', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://valorantesports.com/');
+    await page.goto('https://valorantesports.com/', { waitUntil: 'domcontentloaded' });
   });
 
   test('Verify page title and main navigation elements', async ({ page }) => {
     await expect(page).toHaveTitle(/VALORANT Esports/i);
 
-    const newsLink = page.locator('a', { hasText: 'NEWS' }).first();
-    const scheduleLink = page.locator('a', { hasText: 'SCHEDULE' }).first();
+    const matchesLink = page.getByRole('link', { name: 'MATCHES' }).first();
+    const partnerTeamsLink = page.getByRole('link', { name: 'PARTNER TEAMS' }).first();
 
-    await expect(newsLink).toBeVisible();
-    await expect(scheduleLink).toBeVisible();
+    await expect(matchesLink).toBeVisible();
+    await expect(partnerTeamsLink).toBeVisible();
   });
 
-  test('Navigate to Schedule page and verify content loads', async ({ page }) => {
-    const scheduleLink = page.locator('a', { hasText: 'SCHEDULE' }).first();
-    await scheduleLink.click();
+  test('Navigate to Matches page and verify content loads', async ({ page }) => {
+    const matchesLink = page.getByRole('link', { name: 'MATCHES' }).first();
+    await matchesLink.click();
 
-    await expect(page).toHaveURL(/.*schedule/);
+    await expect(page).toHaveURL(/.*matches/);
 
     const mainContent = page.locator('main');
     await expect(mainContent).toBeVisible();
